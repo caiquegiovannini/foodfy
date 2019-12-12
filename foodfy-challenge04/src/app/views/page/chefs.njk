@@ -1,0 +1,21 @@
+{% extends 'layout.njk' %}
+
+{% block content %}
+
+   <div class="admin-chefs">
+        {% for chef in chefs %}
+            <div class="admin-chef">
+                <span style="background-image: url({{chef.avatar_url}})"></span>
+                <div class="admin-chef-info">
+                    <p>{{chef.name}}</p>
+                    {% if chef.total_recipes == 1 %}
+                        <p class="total-recipes">{{chef.total_recipes}} receita</p>
+                    {% else %}
+                        <p class="total-recipes">{{chef.total_recipes}} receitas</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
