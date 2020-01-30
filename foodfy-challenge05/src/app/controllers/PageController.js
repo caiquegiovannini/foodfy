@@ -19,33 +19,33 @@ module.exports = {
         return res.render('page/about')
     },
     async recipes(req, res) {
-        // let { page, limit } = req.query
+        let { page, limit } = req.query
         
-        // page = page || 1
-        // limit = limit || 3
-        // let offset = limit * (page - 1)
+        page = page || 1
+        limit = limit || 3
+        let offset = limit * (page - 1)
         
-        // const params = {
-        //     page,
-        //     limit,
-        //     offset
-        // }
+        const params = {
+            page,
+            limit,
+            offset
+        }
         
-        // const results = await Recipe.paginate(params)
-        // const recipes = results.rows
-        // const pagination = {
-        //     total: Math.ceil(recipes[0].total / limit),
-        //     page
-        // }
+        const results = await Recipe.paginate(params)
+        const recipes = results.rows
+        const pagination = {
+            total: Math.ceil(recipes[0].total / limit),
+            page
+        }
 
-        // return res.render('page/recipes', { recipes, pagination })
+        return res.render('page/recipes', { recipes, pagination })
 
         // PAGINAÇÃO FUNCIONANDO MAS NUMEROS DE PAGINAS NAO APARECEM (! ARRUMAR !)
 
-        const results = await Recipe.all()
-        const recipes = results.rows
+        // const results = await Recipe.all()
+        // const recipes = results.rows
 
-        return res.render('page/recipes', { recipes })
+        // return res.render('page/recipes', { recipes })
 
     },
     async recipe(req, res) {

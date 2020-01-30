@@ -1,15 +1,24 @@
 <div class="item">
-    <div>Imagem da receita *</div>
-    <input
-        type="url"
-        name="image"
-        placeholder="http://"
-        value="{{recipe.image}}"
-    />
+    <div class="field-title">Imagem da receita *</div>
+    <div class="recipe-photos">
+        <div id="photos-upload">
+            <i class="material-icons">add</i>
+            <input 
+                id="photos-input"
+                type="file" 
+                name="photos" 
+                multiple
+                accept="image/*"
+                onchange="PhotosUpload.handleFileInput(event)"
+            >
+        </div>
+        <div id="photos-preview">
+        </div>
+    </div>
 </div>
 
 <div class="item">
-    <div>Nome da receita *</div>
+    <div class="field-title">Nome da receita *</div>
     <input
         type="text"
         name="title"
@@ -18,7 +27,7 @@
 </div>
 
 <div class="item">
-    <div>Chef *</div>
+    <div class="field-title">Chef *</div>
     <select name="chef">
         {% for chef in chefOptions %}
             <option value="{{chef.id}}" {% if recipe.chef_id == chef.id %}selected{% endif %}>
@@ -29,7 +38,7 @@
 </div>
 
 <div class="item" id="ingredients">
-    <div>Ingredientes *</div>
+    <div class="field-title">Ingredientes *</div>
     {% if recipe.ingredients.length > 0 %}
         {% for ingredient in recipe.ingredients %}
             <div class="ingredient">
@@ -52,10 +61,14 @@
         </div>
     {% endif %}
 </div> 
-<button type="button" class="add-ingredient">Adicionar novo ingrediente</button>
+<button 
+    type="button" 
+    class="add-ingredient" 
+    onclick="RecipeFields.addIngredient()"
+>Adicionar novo ingrediente</button>
 
 <div class="item" id="preparation">
-    <div>Modo de preparo *</div>
+    <div class="field-title">Modo de preparo *</div>
     {% if recipe.preparation.length > 0 %}
         {% for step in recipe.preparation %}
             <div class="step">
@@ -78,10 +91,14 @@
         </div>  
     {% endif %}  
 </div>
-<button type="button" class="add-preparation">Adicionar novo passo</button>
+<button 
+    type="button" 
+    class="add-preparation"
+    onclick="RecipeFields.addPreparation()"
+>Adicionar novo passo</button>
 
 <div class="item">
-    <div>Informações adicionais</div>
+    <div class="field-title">Informações adicionais</div>
     <textarea 
         name="information"
         rows="10">{{recipe.information}}</textarea>
