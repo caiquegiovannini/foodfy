@@ -1,7 +1,7 @@
 {% extends 'layout_admin.njk' %}
 
 {% block content %}
-    <form action="/admin/chefs?_method=PUT" method="post">
+    <form action="/admin/chefs?_method=PUT" method="post" enctype="multipart/form-data">
 
         <h2>Editando chef</h2>
         <button type="submit">Salvar chef</button>

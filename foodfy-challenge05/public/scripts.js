@@ -40,8 +40,10 @@ for (item of adminMenuItens) {
 }
 
 // Esconde o campo de busca dependendo da pagina
-if (currentPage.includes('about') || currentPage.includes('chefs')) {
-    searchField.classList.add('hide')
+if (searchField) {
+    if (currentPage.includes('about') || currentPage.includes('chefs')) {
+        searchField.classList.add('hide')
+    }
 }
 
 const RecipeFields = {
@@ -137,10 +139,13 @@ if (pagination) {
     createPagination(pagination)
 }
 
+// Uploads
 const PhotosUpload = {
     input: "",
     preview: document.querySelector('#photos-preview'),
+    avatar: document.querySelector('#avatar-path'),
     uploadLimit: 5,
+    path: "",
     files: [],
     handleFileInput(event) {
         const { files: fileList } = event.target
@@ -161,10 +166,10 @@ const PhotosUpload = {
                 const container = PhotosUpload.getContainer(image)
                 PhotosUpload.preview.appendChild(container)
             }
-
+            
             reader.readAsDataURL(file)
         })
-
+        
         PhotosUpload.input.files = PhotosUpload.getAllFiles()
     },
     hasLimit(event) {
@@ -242,4 +247,3 @@ const PhotosUpload = {
         
     }
 }
-

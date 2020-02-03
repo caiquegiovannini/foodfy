@@ -30,8 +30,8 @@ routes.get('/admin/chefs/create', AdminChefController.create)
 routes.get('/admin/chefs/:id', AdminChefController.show)
 routes.get('/admin/chefs/:id/edit', AdminChefController.edit)
 
-routes.post('/admin/chefs', AdminChefController.post)
-routes.put('/admin/chefs', AdminChefController.put)
+routes.post('/admin/chefs', multer.single("avatar"), AdminChefController.post)
+routes.put('/admin/chefs', multer.single("avatar"), AdminChefController.put)
 routes.delete('/admin/chefs', AdminChefController.delete)
 
 
