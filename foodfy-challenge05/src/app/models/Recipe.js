@@ -108,11 +108,11 @@ module.exports = {
     },
     files(id) {
         return db.query(`
-        SELECT files.* FROM files
-        LEFT JOIN recipe_files ON (recipe_files.file_id = files.id)
-        LEFT JOIN recipes ON (recipes.id = recipe_files.recipe_id)
-        WHERE recipe_files.file_id = files.id
-        AND recipe_files.recipe_id = $1
+            SELECT files.* FROM files
+            LEFT JOIN recipe_files ON (recipe_files.file_id = files.id)
+            LEFT JOIN recipes ON (recipes.id = recipe_files.recipe_id)
+            WHERE recipe_files.file_id = files.id
+            AND recipe_files.recipe_id = $1
         `, [id])
     }
 }

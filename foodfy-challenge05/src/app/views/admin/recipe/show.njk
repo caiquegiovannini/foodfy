@@ -8,7 +8,20 @@
 
     <section class="head-recipe">
         <div class="full-recipe_image">
-            <img src="{{recipe.image}}" alt="{{recipe.title}}">
+            <img src="{{files[0].src}}" alt="{{files[0].name}}">
+        </div>
+
+        <div class="full-recipe_highlights">
+        {% for file in files %}
+            <img 
+                src="{{file.src}}" 
+                alt="{{file.name}}"
+                {% if files.indexOf(file) == 0 %}
+                    class="selected"
+                {%endif%}
+                onclick="PhotoSelected.highlightPhoto(event)"
+            >
+        {% endfor %}
         </div>
         <div class="full-recipe_info">
             <p class="full-recipe_name">{{recipe.title}}</p>

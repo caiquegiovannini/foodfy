@@ -1,12 +1,27 @@
-const { date } = require('../../lib/utils')
 const Recipe = require('../models/Recipe')
 const File = require('../models/File')
 const Recipe_File = require('../models/Recipe_File')
 
 module.exports = {
     async index(req, res) {
-        const results = await Recipe.all()
-        const recipes = results.rows
+        let results = await Recipe.all()
+        let recipes = results.rows
+
+        const filesPromise = recipes.map(async recipe => {
+            results = await Recipe.files(recipe.id)
+            let file = results.rows[0]
+            file = {
+                ...file,
+                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            }
+            recipe = {
+                ...recipe,
+                file
+            }
+        })
+        await Promise.all(filesPromise)
+        
+        console.log(filesPromise) // colocar as miniaturas no recipes index
 
         return res.render('admin/recipe/index', { recipes })
 
@@ -43,12 +58,20 @@ module.exports = {
     
     },
     async show(req, res) {
-        const results = await Recipe.find(req.params.id)
+        let results = await Recipe.find(req.params.id)
         const recipe = results.rows[0]
         
         if (!recipe) return res.send('Receita não encontrada!')
 
-        return res.render(`admin/recipe/show`, { recipe })
+        //get images
+        results = await Recipe.files(recipe.id)
+        let files = results.rows
+        files = files.map(file => ({
+            ...file,
+            src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+        }))
+
+        return res.render(`admin/recipe/show`, { recipe, files })
     },
     async edit(req, res) {
         let results = await Recipe.find(req.params.id)

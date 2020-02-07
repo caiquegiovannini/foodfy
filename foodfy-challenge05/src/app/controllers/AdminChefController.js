@@ -1,11 +1,15 @@
-const { date } = require('../../lib/utils')
 const Chef = require('../models/Chef')
 const File = require('../models/File')
+const Recipe = require('../models/Recipe')
 
 module.exports = {
     async index(req, res) {
         const results = await Chef.all()
-        const chefs = results.rows
+        let chefs = results.rows
+        chefs = chefs.map(chef => ({
+                ...chef,
+                path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`
+            }))
 
         return res.render('admin/chef/index', { chefs })
     },
@@ -33,15 +37,16 @@ module.exports = {
         return res.redirect(`/admin/chefs/${chefId}`)
     },
     async show(req, res) {
-        const results = await Chef.find(req.params.id)
+        let results = await Chef.find(req.params.id)
         const resultsRecipes = await Chef.findRecipesByChef(req.params.id)
-        const recipes = resultsRecipes.rows
+        let recipes = resultsRecipes.rows
         let chef = results.rows[0]
 
         if (!chef) return res.send('Chef não encontrado!')
 
         chef = {
             ...chef,
+            path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`,
             recipes
         }
 
@@ -57,7 +62,7 @@ module.exports = {
         let file = results.rows[0]
         file = {
             ...file,
-            src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "").replace("\\images\\", "/images/")}`
         }
 
         return res.render('admin/chef/edit', { chef, avatar: file })
@@ -71,17 +76,28 @@ module.exports = {
                 return res.send('Todos os campos são obrigatórios!')
             }
         }
+        console.log(req.body)
+        
+        // to change avatar
+        if (req.file && req.body.removed_files != '') {
+            if (req.body.removed_files) {
+                var removedFiles = req.body.removed_files.split(",")
+                const lastIndex = removedFiles.length - 1
+                removedFiles.splice(lastIndex, 1)
+            }
 
-        // add new avatar
-        if (req.file) {
-            const newAvatar = await File.create({ ...req.file })
-            const newAvatarId = newAvatar.rows[0].id
+            // add new avatar
+            let results = await File.create({ ...req.file })
+            const newAvatarId = results.rows[0].id
+            await Chef.update(req.body, newAvatarId)
 
-            await Chef.create(req.body, newAvatarId)
+            // remove old avatar
+            const removedFilesPromise = removedFiles.map(id => File.delete(id))
+            await Promise.all(removedFilesPromise)
+        } else {
+            return res.send('Por favor, exclua o avatar atual antes de enviar um novo')
         }
-
-        await Chef.update(req.body)
-
+        
         return res.redirect(`/admin/chefs/${req.body.id}`)
     
     },
@@ -91,5 +107,3 @@ module.exports = {
         return res.redirect('/admin/chefs')
     }
 }
-
-// Edição de imagem de chef

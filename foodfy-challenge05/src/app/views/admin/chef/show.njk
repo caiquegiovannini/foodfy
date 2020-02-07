@@ -9,7 +9,7 @@
 
     <section class="chef-header">
         <div>
-            <img src="{{chef.avatar_url}}" alt="{{chef.name}}">
+            <img src="{{chef.path}}" alt="{{chef.name}}">
             <p class="chef-name">{{chef.name}}</p>
             {% if chef.total_recipes == 1 %}
                 <p>{{chef.total_recipes}} receita</p>
@@ -25,7 +25,7 @@
         {% for recipe in chef.recipes %}
             <div class="admin-recipe">
                 <div class="admin-recipe-img">
-                    <img src="{{recipe.image}}" alt="{{recipe.title}}">
+                    <img src="{{image.src}}" alt="{{recipe.title}}">
                 </div>
                 <div class="admin-recipe-info">
                     <p>{{recipe.title}}</p>

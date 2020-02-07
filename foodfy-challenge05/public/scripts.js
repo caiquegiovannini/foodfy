@@ -143,7 +143,6 @@ if (pagination) {
 const PhotosUpload = {
     input: "",
     preview: document.querySelector('#photos-preview'),
-    avatar: document.querySelector('#avatar-path'),
     uploadLimit: 5,
     path: "",
     files: [],
@@ -245,5 +244,23 @@ const PhotosUpload = {
 
         photoContainer.remove()
         
+    }
+}
+
+// Image Select
+const PhotoSelected = {
+    mainPhoto: document.querySelector('.full-recipe_image img'),
+    highlights: document.querySelectorAll('.full-recipe_highlights img'),
+    highlightPhoto(event) {
+        const selected = event.target
+
+        for (image of PhotoSelected.highlights) {
+            image.classList.remove('selected')
+        }
+
+        selected.classList.add('selected')
+
+        PhotoSelected.mainPhoto.src = selected.src
+        PhotoSelected.mainPhoto.alt = selected.alt
     }
 }
