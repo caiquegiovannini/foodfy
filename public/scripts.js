@@ -1,23 +1,150 @@
-const Mask = {
-    apply(input, func) {
-        setTimeout(function() {
-            input.value = Mask[func](input.value)
-        }, 1)    
-    },
-    formatBRL(value) {
-        value = value.replace(/\D/g, "")
+const recipes = document.querySelectorAll('.recipe')
+const showHideButton = document.querySelectorAll('.show-hide')
+const content = document.querySelectorAll('.step-content')
+const menuItens = document.querySelectorAll('.menu a')
+const searchField = document.querySelector('.page-header form')
+const adminMenuItens = document.querySelectorAll('.menu-admin a')
+const currentPage = location.pathname
 
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(value/100)    
+for (let recipe of recipes) {
+    recipe.addEventListener('click', function() {
+        const recipeId = recipe.id
+        
+        window.location.href = `/recipes/${recipeId}`
+    })
+}
+
+// Botão mostrar e esconder
+for (let i = 0; i < showHideButton.length; i++) {
+    showHideButton[i].addEventListener('click', function() {
+        if (showHideButton[i].textContent == 'ESCONDER') {
+            showHideButton[i].textContent = 'MOSTRAR'
+        } else {
+            showHideButton[i].textContent = 'ESCONDER'
+        }
+        content[i].classList.toggle('hide')
+    })
+}
+
+// Destaca o local no menu
+for (item of menuItens) {
+    if (currentPage.includes(item.getAttribute('href'))) {
+        item.classList.add('active')
     }
 }
 
+for (item of adminMenuItens) {
+    if (currentPage.includes(item.getAttribute('href'))) {
+        item.classList.add('active')
+    }
+}
+
+// Esconde o campo de busca dependendo da pagina
+if (searchField) {
+    if (currentPage.includes('about') || currentPage.includes('chefs')) {
+        searchField.classList.add('hide')
+    }
+}
+
+const RecipeFields = {
+    // Adicionar novos ingredientes
+    addIngredient() {
+        const ingredients = document.querySelector('#ingredients')
+        const fieldContainer = document.querySelectorAll('.ingredient')
+
+        // Realiza um clone do último ingrediente adicionado
+        const newField = fieldContainer[fieldContainer.length - 1].cloneNode(true)
+
+        // Não adiciona um novo input se o último tem um valor vazio
+        if (newField.children[0].value == "") return false
+
+        // Deixa o valor do input vazio
+        newField.children[0].value = ""
+        ingredients.appendChild(newField)
+    },
+    // Adicionar modo de preparo
+    addPreparation() {
+        const preparation = document.querySelector('#preparation')
+        const fieldCOntainer = document.querySelectorAll('.step')
+
+        // Realiza um clone da última etapa adicionada
+        const newField = fieldCOntainer[fieldCOntainer.length - 1].cloneNode(true)
+
+        // Não adiciona um novo input se o último tem um valor vazio
+        if (newField.children[0].value == "") return false
+
+        // Deixa o valor do input vazio
+        newField.children[0].value = ""
+        preparation.appendChild(newField)
+    }
+}
+
+// Paginação
+function paginate(selectedPage, totalPages) {
+
+    let pages = [],
+        oldPage  // pagina anterior ao currentPage
+
+    for (let currentPage = 1; currentPage <= totalPages; currentPage++) {
+
+        const firstAndLastPage = currentPage == 1 || currentPage == totalPages
+        const pagesAfterSelectedPage = currentPage <= selectedPage + 2
+        const pagesBeforeSelectedPage = currentPage >= selectedPage - 2
+
+        if (firstAndLastPage || pagesAfterSelectedPage && pagesBeforeSelectedPage) {
+
+            if (oldPage && currentPage - oldPage > 2) {
+                pages.push("...")
+            }
+
+            if (oldPage && currentPage - oldPage == 2) {
+                pages.push(currentPage - 1)
+            }
+
+            pages.push(currentPage)
+
+            oldPage = currentPage
+
+        }
+    }
+    return pages
+}
+
+function createPagination(pagination) {
+    const filter = pagination.dataset.filter
+    const page = +pagination.dataset.page
+    const total = +pagination.dataset.total
+    const pages = paginate(page, total)
+
+    let elements = ""
+
+    for (let page of pages) {
+        if (String(page).includes("...")) {
+            elements += `<span>${page}</span>`
+        } else {
+            if( filter ) {
+                elements += `<a href="?page=${page}&filter=${filter}">${page}</a>`
+            } else {
+                elements += `<a href="?page=${page}">${page}</a>`
+            }
+        }
+    }
+
+    pagination.innerHTML = elements
+}
+
+const pagination = document.querySelector('.pagination')
+
+if (pagination) {
+    createPagination(pagination)
+}
+
+// Uploads
 const PhotosUpload = {
     input: "",
     preview: document.querySelector('#photos-preview'),
-    uploadLimit: 6,
+    uploadLimit: 5,
+    path: "",
     files: [],
     handleFileInput(event) {
         const { files: fileList } = event.target
@@ -35,13 +162,13 @@ const PhotosUpload = {
                 const image = new Image()
                 image.src = String(reader.result)
 
-                const div = PhotosUpload.getContainer(image)
-                PhotosUpload.preview.appendChild(div)
+                const container = PhotosUpload.getContainer(image)
+                PhotosUpload.preview.appendChild(container)
             }
-
+            
             reader.readAsDataURL(file)
         })
-
+        
         PhotosUpload.input.files = PhotosUpload.getAllFiles()
     },
     hasLimit(event) {
@@ -49,19 +176,19 @@ const PhotosUpload = {
         const { files: fileList } = input
 
         if (fileList.length > uploadLimit) {
-            alert(`Envie no máximo ${uploadLimit} fotos!`)
+            alert(`Envie no máximo ${uploadLimit} fotos`)
             event.preventDefault()
             return true
         }
 
-        const photosDiv = []
+        const photosContainer = []
         preview.childNodes.forEach(item => {
             if (item.classList && item.classList.value == "photo") {
-                photosDiv.push(item)
+                photosContainer.push(item)
             }
         })
 
-        const totalPhotos = fileList.length + photosDiv.length
+        const totalPhotos = fileList.length + photosContainer.length
         if (totalPhotos > uploadLimit) {
             alert('Você atingiu o limite máximo de fotos')
             event.preventDefault()
@@ -78,16 +205,16 @@ const PhotosUpload = {
         return dataTransfer.files
     },
     getContainer(image) {
-        const div = document.createElement('div')
-        div.classList.add('photo')
+        const container = document.createElement('div')
+        container.classList.add('photo')
 
-        div.onclick = PhotosUpload.removePhoto
+        container.onclick = PhotosUpload.removePhoto
 
-        div.appendChild(image)
+        container.appendChild(image)
 
-        div.appendChild(PhotosUpload.getRemoveButton())
+        container.appendChild(PhotosUpload.getRemoveButton())
 
-        return div
+        return container
     },
     getRemoveButton() {
         const button = document.createElement('i')
@@ -96,58 +223,44 @@ const PhotosUpload = {
         return button
     },
     removePhoto(event) {
-        const photoDiv = event.target.parentNode // <div class="photo">
+        const photoContainer = event.target.parentNode // <div class="photo">
         const photosArray = Array.from(PhotosUpload.preview.children)
-        const index = photosArray.indexOf(photoDiv)
+        const index = photosArray.indexOf(photoContainer)
 
         PhotosUpload.files.splice(index, 1)
         PhotosUpload.input.files = PhotosUpload.getAllFiles()
 
-        photoDiv.remove()
+        photoContainer.remove()
     },
     removeOldPhoto(event) {
-        const photoDiv = event.target.parentNode
+        const photoContainer = event.target.parentNode
         
-        if (photoDiv.id) {
+        if (photoContainer.id) {
             const removedFiles = document.querySelector('input[name="removed_files"]')
             if (removedFiles) {
-                removedFiles.value += `${photoDiv.id},`
+                removedFiles.value += `${photoContainer.id},`
             }
         }
 
-        photoDiv.remove()
+        photoContainer.remove()
         
     }
 }
 
-const ImageGallery = {
-    highlight: document.querySelector('.gallery .highlight > img'),
-    previews: document.querySelectorAll('.gallery-preview img'),
-    setImage(e) {
-        const { target } = e
+// Image Select
+const PhotoSelected = {
+    mainPhoto: document.querySelector('.full-recipe_image img'),
+    highlights: document.querySelectorAll('.full-recipe_highlights img'),
+    highlightPhoto(event) {
+        const selected = event.target
 
-        ImageGallery.previews.forEach(preview => preview.classList.remove('active'))
-        target.classList.add('active')
+        for (image of PhotoSelected.highlights) {
+            image.classList.remove('selected')
+        }
 
-        ImageGallery.highlight.src = target.src
-        Lightbox.image.src = target.src
-    }
-}
+        selected.classList.add('selected')
 
-const Lightbox = {
-    target: document.querySelector('.lightbox-target'),
-    image: document.querySelector('.lightbox-target img'),
-    closeButton: document.querySelector('.lightbox-target a.lightbox-close'),
-    open() {
-        Lightbox.target.style.opacity = 1
-        Lightbox.target.style.top = 0
-        Lightbox.target.style.bottom = 0
-        Lightbox.closeButton.style.top = 0 
-    },
-    close() {
-        Lightbox.target.style.opacity = 0
-        Lightbox.target.style.top = "100%"
-        Lightbox.target.style.bottom = "initial"
-        Lightbox.closeButton.style.top = "-80px"
+        PhotoSelected.mainPhoto.src = selected.src
+        PhotoSelected.mainPhoto.alt = selected.alt
     }
 }

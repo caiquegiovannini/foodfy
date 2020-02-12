@@ -43,7 +43,8 @@ module.exports = {
             SELECT recipes.*
             FROM recipes
             LEFT JOIN chefs ON (chefs.id = recipes.chef_id)
-            WHERE chef_id = $1    
+            WHERE chef_id = $1
+            ORDER BY created_at 
         `, [id])
     },
     update(data, file_id) {

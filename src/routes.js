@@ -2,29 +2,37 @@ const express = require('express')
 const routes = express.Router()
 const multer = require('./app/middlewares/multer')
 
-const ProductController = require('./app/controllers/ProductController')
-const HomeController = require('./app/controllers/HomeController')
-const SearchController = require('./app/controllers/SearchController')
+const PageController = require('./app/controllers/PageController')
+const AdminRecipeController = require('./app/controllers/AdminRecipeController')
+const AdminChefController = require('./app/controllers/AdminChefController')
 
-// Home
-routes.get('/', HomeController.index)
+// Page
+routes.get('/', PageController.index)
+routes.get('/about', PageController.about)
+routes.get('/recipes', PageController.recipes)
+routes.get('/recipes/:id', PageController.recipe)
+routes.get('/chefs', PageController.chefs)
+routes.get('/search', PageController.search)
 
-// Search
-routes.get('/products/search', SearchController.index)
+// Admin Recipes
+routes.get('/admin/recipes', AdminRecipeController.index)
+routes.get('/admin/recipes/create', AdminRecipeController.create)
+routes.get('/admin/recipes/:id', AdminRecipeController.show)
+routes.get('/admin/recipes/:id/edit', AdminRecipeController.edit)
 
-// Product
-routes.get('/products/create', ProductController.create)
-routes.get('/products/:id', ProductController.show)
-routes.get('/products/:id/edit', ProductController.edit)
+routes.post('/admin/recipes', multer.array("photos", 5), AdminRecipeController.post)
+routes.put('/admin/recipes', multer.array("photos", 5) , AdminRecipeController.put)
+routes.delete('/admin/recipes', AdminRecipeController.delete)
 
-routes.post('/products', multer.array('photos', 6), ProductController.post)
-routes.put('/products', multer.array('photos', 6), ProductController.put)
-routes.delete('/products', ProductController.delete)
+// Admin Chefs
+routes.get('/admin/chefs', AdminChefController.index)
+routes.get('/admin/chefs/create', AdminChefController.create)
+routes.get('/admin/chefs/:id', AdminChefController.show)
+routes.get('/admin/chefs/:id/edit', AdminChefController.edit)
 
+routes.post('/admin/chefs', multer.single("avatar"), AdminChefController.post)
+routes.put('/admin/chefs', multer.single("avatar"), AdminChefController.put)
+routes.delete('/admin/chefs', AdminChefController.delete)
 
-// Alias
-routes.get('/ads/create', function(req, res) {
-    return res.redirect('/products/create')
-})
 
 module.exports = routes

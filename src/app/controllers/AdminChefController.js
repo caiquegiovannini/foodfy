@@ -44,6 +44,22 @@ module.exports = {
 
         if (!chef) return res.send('Chef não encontrado!')
 
+        const filesPromise = recipes.map(async recipe => {
+            results = await Recipe.files(recipe.id)
+            let file = results.rows[0]
+            file = {
+                ...file,
+                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            }
+            return recipe = {
+                ...recipe,
+                file
+            }
+        })
+        recipes = await Promise.all(filesPromise)
+
+        console.log(recipes)
+
         chef = {
             ...chef,
             path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`,

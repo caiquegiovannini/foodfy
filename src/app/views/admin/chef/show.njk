@@ -25,7 +25,7 @@
         {% for recipe in chef.recipes %}
             <div class="admin-recipe">
                 <div class="admin-recipe-img">
-                    <img src="{{image.src}}" alt="{{recipe.title}}">
+                    <img src="{{recipe.file.src}}" alt="{{recipe.title}}">
                 </div>
                 <div class="admin-recipe-info">
                     <p>{{recipe.title}}</p>

@@ -14,16 +14,14 @@ module.exports = {
                 ...file,
                 src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
             }
-            recipe = {
+            return recipe = {
                 ...recipe,
                 file
             }
         })
-        await Promise.all(filesPromise)
-        
-        console.log(filesPromise) // colocar as miniaturas no recipes index
+        const newRecipes = await Promise.all(filesPromise)
 
-        return res.render('admin/recipe/index', { recipes })
+        return res.render('admin/recipe/index', { recipes: newRecipes })
 
     },
     async create(req, res) {

@@ -1,5 +1,6 @@
 const db = require('../../config/db')
 const { date } = require('../../lib/utils')
+const fs = require('fs')
 
 module.exports = {
     all() {
@@ -73,8 +74,29 @@ module.exports = {
 
         return db.query(query, values)
     },
-    delete(id) {
-        db.query(`DELETE FROM recipes WHERE id=$1`, [id])
+    async delete(id) {
+        const results = await db.query(`
+            SELECT files.* FROM files
+            LEFT JOIN recipe_files ON (recipe_files.file_id = files.id)
+            LEFT JOIN recipes ON (recipes.id = recipe_files.recipe_id)
+            WHERE recipe_files.file_id = files.id
+            AND recipe_files.recipe_id = $1
+        `, [id])
+        const files = results.rows
+
+        
+        const deleteFilesPromise = files.map(async file => {
+            fs.unlinkSync(file.path)
+
+            await db.query(`DELETE FROM recipe_files WHERE file_id = $1`, [file.id])
+    
+            await db.query(`DELETE FROM files WHERE id = $1`, [file.id])
+        })
+
+        await Promise.all(deleteFilesPromise)
+
+
+        return db.query(`DELETE FROM recipes WHERE id = $1`, [id])
     },
     paginate(params) {
         const { filter, limit, offset } = params
@@ -101,6 +123,7 @@ module.exports = {
         FROM recipes
         LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
         ${filterQuery}
+        ORDER BY created_at
         LIMIT $1 OFFSET $2
         `
 

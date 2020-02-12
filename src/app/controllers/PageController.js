@@ -4,15 +4,30 @@ const Chef = require('../models/Chef')
 
 module.exports = {
     async index(req, res) {
-        const results = await Recipe.all()
-        const recipes = results.rows
+        let results = await Recipe.all()
+        let recipes = results.rows
         let mostViewed = []
 
+        // get images 
+        const filesPromise = recipes.map(async recipe => {
+            results = await Recipe.files(recipe.id)
+            let file = results.rows[0]
+            file = {
+                ...file,
+                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            }
+            return recipe = {
+                ...recipe,
+                file
+            }
+        })
+        const newRecipes = await Promise.all(filesPromise)
+
         for (let i = 0; i < 6; i++) {
-            mostViewed.push(recipes[i])
+            mostViewed.push(newRecipes[i])
         }
 
-        return res.render('page/index', { recipes, mostViewed })
+        return res.render('page/index', { mostViewed })
         
     },
     about(req, res) {
@@ -31,44 +46,79 @@ module.exports = {
             offset
         }
         
-        const results = await Recipe.paginate(params)
-        const recipes = results.rows
+        let results = await Recipe.paginate(params)
+        let recipes = results.rows
         const pagination = {
             total: Math.ceil(recipes[0].total / limit),
             page
         }
 
-        return res.render('page/recipes', { recipes, pagination })
+        // get images 
+        const filesPromise = recipes.map(async recipe => {
+            results = await Recipe.files(recipe.id)
+            let file = results.rows[0]
+            file = {
+                ...file,
+                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            }
+            return recipe = {
+                ...recipe,
+                file
+            }
+        })
+        const newRecipes = await Promise.all(filesPromise)
 
-        // PAGINAÇÃO FUNCIONANDO MAS NUMEROS DE PAGINAS NAO APARECEM (! ARRUMAR !)
-
-        // const results = await Recipe.all()
-        // const recipes = results.rows
-
-        // return res.render('page/recipes', { recipes })
-
+        return res.render('page/recipes', { recipes: newRecipes, pagination })
     },
     async recipe(req, res) {
-        const results = await Recipe.find(req.params.id)
+        let results = await Recipe.find(req.params.id)
         const recipe = results.rows[0]
 
         if (!recipe) return res.send('Receita não encontrada!')
 
-        return res.render("page/show", { recipe })
+        //get images
+        results = await Recipe.files(recipe.id)
+        let files = results.rows
+        files = files.map(file => ({
+            ...file,
+            src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+        }))
+
+        return res.render("page/show", { recipe, files })
     },
     async chefs(req, res) {
         const results = await Chef.all()
-        const chefs = results.rows
+        let chefs = results.rows
+
+        chefs = chefs.map(chef => ({
+            ...chef,
+            path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`
+        }))
             
         return res.render('page/chefs', { chefs })
     },
     async search(req, res) {
         const { filter } = req.query
 
-        const results = await Recipe.findBy(filter)
-        const recipes = results.rows
+        let results = await Recipe.findBy(filter)
+        let recipes = results.rows
 
-        return res.render('page/search', { recipes, filter })
+        // get images 
+        const filesPromise = recipes.map(async recipe => {
+            results = await Recipe.files(recipe.id)
+            let file = results.rows[0]
+            file = {
+                ...file,
+                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
+            }
+            return recipe = {
+                ...recipe,
+                file
+            }
+        })
+        const newRecipes = await Promise.all(filesPromise)
+
+        return res.render('page/search', { recipes: newRecipes, filter })
         
     //     let { filter, page, limit } = req.query
 
