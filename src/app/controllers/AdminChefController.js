@@ -58,8 +58,6 @@ module.exports = {
         })
         recipes = await Promise.all(filesPromise)
 
-        console.log(recipes)
-
         chef = {
             ...chef,
             path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`,
@@ -92,7 +90,6 @@ module.exports = {
                 return res.send('Todos os campos são obrigatórios!')
             }
         }
-        console.log(req.body)
         
         // to change avatar
         if (req.file && req.body.removed_files != '') {

@@ -1,0 +1,70 @@
+.container a.button,
+form button.button:not(.search-button) {
+    min-width: 139px;
+}
+
+/* USERS LIST */
+.container .users {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 52px;
+}
+
+.users .user p:nth-child(2) {
+    font-size: 14px;
+    color: #777777;
+    margin: 4px 0 15px 0;
+}
+
+.users .user .edit-remove {
+    display: flex;
+    align-items: baseline;
+}
+
+.users .user .user-edit {
+    text-decoration: none;
+    color: #6558C3;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.users .user .user-delete {
+    background: none;
+    color: #F55A5A;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+
+    margin-left: 16px;
+
+    cursor: pointer;
+}
+
+/* USERS REGISTER */
+form .save-cancel {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.save-cancel .save {
+    right: 155px;
+}
+
+.save-cancel .cancel {
+    background: #8A8A8A;
+}
+
+form .fields {
+    margin-top: 62px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.fields .item label {
+    font-size: 16px;
+    font-weight: bold;
+}

@@ -4,7 +4,7 @@
     <form action="/admin/chefs?_method=PUT" method="post" enctype="multipart/form-data">
 
         <h2>Editando chef</h2>
-        <button type="submit">Salvar chef</button>
+        <button class="button" type="submit">Salvar chef</button>
 
         {% include 'admin/chef/fields.njk' %}
 
@@ -17,7 +17,7 @@
 
     <form id="form-delete" action="/admin/chefs?_method=DELETE" method="post">
         <input type="hidden" name="id" value={{chef.id}}>
-        <button type="submit" class="delete">Deletar</button>
+        <button type="submit" class="button delete">Deletar</button>
     </form>
 
     <script>

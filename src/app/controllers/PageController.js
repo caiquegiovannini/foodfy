@@ -1,4 +1,3 @@
-const db = require('../../config/db')
 const Recipe = require('../models/Recipe')
 const Chef = require('../models/Chef')
 
@@ -74,7 +73,9 @@ module.exports = {
         let results = await Recipe.find(req.params.id)
         const recipe = results.rows[0]
 
-        if (!recipe) return res.send('Receita não encontrada!')
+        if (!recipe) return res.render('page/recipes', {
+            error: 'Receita não encontrada!'
+        })
 
         //get images
         results = await Recipe.files(recipe.id)
