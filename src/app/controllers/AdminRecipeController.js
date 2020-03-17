@@ -32,16 +32,6 @@ module.exports = {
 
     },
     async post(req, res) {
-        const keys = Object.keys(req.body)
-
-        for (key of keys) {
-            if (key != 'information' && req.body[key] == "") {
-                return res.send('Os campos com * são obrigatórios!')
-            }
-        }
-
-        if (req.files.length == 0)
-            return res.send('Envie pelo menos uma foto')
 
         let results = await Recipe.create(req.body)
         const recipeId = results.rows[0].id

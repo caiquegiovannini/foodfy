@@ -7,7 +7,7 @@ const adminMenuItens = document.querySelectorAll('.menu-admin a')
 const currentPage = location.pathname
 
 for (let recipe of recipes) {
-    recipe.addEventListener('click', function() {
+    recipe.addEventListener('click', () => {
         const recipeId = recipe.id
         
         window.location.href = `/recipes/${recipeId}`
@@ -16,7 +16,7 @@ for (let recipe of recipes) {
 
 // Botão mostrar e esconder
 for (let i = 0; i < showHideButton.length; i++) {
-    showHideButton[i].addEventListener('click', function() {
+    showHideButton[i].addEventListener('click', () => {
         if (showHideButton[i].textContent == 'ESCONDER') {
             showHideButton[i].textContent = 'MOSTRAR'
         } else {
@@ -262,5 +262,49 @@ const PhotoSelected = {
 
         PhotoSelected.mainPhoto.src = selected.src
         PhotoSelected.mainPhoto.alt = selected.alt
+    }
+}
+
+// Validates
+const Validate = {
+    apply(input, func) {
+        Validate.clearErrors(input)
+
+        let results = Validate[func](input.value)
+
+        input.value = results.value
+
+        if (results.error)
+            Validate.displayError(input, results.error)
+
+    },
+    displayError(input, error) {
+        const div = document.createElement('div')
+        div.classList.add('error')
+        div.innerHTML = error
+        input.parentNode.appendChild(div)
+
+        input.parentNode.querySelector('input').classList.add('border-error')
+
+        input.focus()
+    },
+    clearErrors(input) {
+        const errorDiv = input.parentNode.querySelector('.error')
+        if (errorDiv)
+            errorDiv.remove()
+            input.parentNode.querySelector('input').classList.remove('border-error')
+    },
+    isEmail(value) {
+        let error = null
+
+        const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+
+        if (!value.match(mailFormat))
+            error = 'Email inválido'
+
+        return {
+            error,
+            value
+        }
     }
 }
