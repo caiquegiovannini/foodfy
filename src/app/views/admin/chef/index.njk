@@ -3,7 +3,9 @@
 {% block content %}
 
     <h2>Gerenciar chefs</h2>
-    <a class="button" href="/admin/chefs/create">Novo chef</a>
+    {% if userIsAdmin %}
+        <a class="button" href="/admin/chefs/create">Novo chef</a>
+    {% endif %}
     <div class="admin-chefs">
         {% for chef in chefs %}
             <div class="admin-chef">

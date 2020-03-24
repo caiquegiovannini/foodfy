@@ -9,15 +9,13 @@
 
 <div class="item">
     <div class="field-title">Avatar *</div>
-    <div class="avatar-path" id={{avatar.id}}>
-        <span>{{avatar.src}}</span>
-        <i class="material-icons"
-            onclick="PhotosUpload.removeOldPhoto(event)"
-        >close</i>
-    </div>
-    <input type="hidden" name="removed_files">
+    {% if avatar %}
+        <div class="avatar-path" id={{avatar.id}}>
+            <span>{{avatar.src}}</span>
+        </div>
+    {% endif %}
 
-    <div class="avatar-upload">
+    <div class="avatar-upload" id="{{avatar.id}}">
         <input 
             id="avatar-input"
             type="file" 
@@ -27,4 +25,6 @@
         >
         <p>Enviar Avatar</p>
     </div>
+    <input type="hidden" name="removed_files">
+
 </div>
