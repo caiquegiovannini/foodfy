@@ -1,6 +1,7 @@
 const db = require('../../config/db')
-const { date } = require('../../lib/utils')
 const fs = require('fs')
+
+const Base = require('./Base')
 
 module.exports = {
     all() {
@@ -8,7 +9,7 @@ module.exports = {
             SELECT recipes.*, name AS chef_name
             FROM recipes 
             LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
-            ORDER BY title`
+            ORDER BY created_at DESC`
         )
     },
     chefSelectOptions() {
@@ -23,7 +24,7 @@ module.exports = {
             ingredients,
             preparation,
             information,
-            created_at
+            user_id
         ) VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id
         `
@@ -34,7 +35,7 @@ module.exports = {
             data.ingredients,
             data.preparation,
             data.information,
-            date(Date.now())
+            data.user_id
         ]
 
         return db.query(query, values)
@@ -52,7 +53,7 @@ module.exports = {
             FROM recipes 
             LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
             WHERE recipes.title ILIKE '%${filter}%'
-            ORDER BY title`)
+            ORDER BY updated_at DESC`)
     },
     update(data) {
         const query = `UPDATE recipes SET
@@ -123,7 +124,7 @@ module.exports = {
         FROM recipes
         LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
         ${filterQuery}
-        ORDER BY created_at
+        ORDER BY created_at DESC
         LIMIT $1 OFFSET $2
         `
 

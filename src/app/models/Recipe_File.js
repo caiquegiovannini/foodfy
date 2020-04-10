@@ -1,5 +1,7 @@
 const db = require('../../config/db')
 
+const Base = require('./Base')
+
 module.exports = {
     create(recipe_id, file_id) {
         const query = `

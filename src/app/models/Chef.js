@@ -1,5 +1,7 @@
 const db = require('../../config/db')
-const { date } = require('../../lib/utils')
+const fs = require('fs')
+
+const Base = require('./Base')
 
 module.exports = {
     all() {
@@ -14,15 +16,13 @@ module.exports = {
         const query = `
         INSERT INTO chefs (
             name,
-            created_at,
             file_id
-        ) VALUES ($1, $2, $3)
+        ) VALUES ($1, $2)
         RETURNING id
         `
 
         const values = [
             data.name,
-            date(Date.now()),
             file_id
         ]
 
@@ -44,29 +44,64 @@ module.exports = {
             FROM recipes
             LEFT JOIN chefs ON (chefs.id = recipes.chef_id)
             WHERE chef_id = $1
-            ORDER BY created_at 
+            ORDER BY created_at DESC
         `, [id])
     },
     update(data, file_id) {
-        const query = `UPDATE chefs SET
-            name = $1,
-            file_id = $2
-        WHERE id = $3
+        let values = []
+        let query = `UPDATE chefs SET
+            name = $1
         `
 
-        const values = [
-            data.name,
-            file_id,
-            data.id
-        ]
+        if (file_id) {
+            query = `${query},
+                file_id = $2
+            WHERE id = $3
+            `
+
+            values = [
+                data.name,
+                file_id,
+                data.id
+            ]
+
+        } else {
+            query = `${query}
+            WHERE id = $2
+            `
+
+            values = [
+                data.name,
+                data.id
+            ]
+        }
 
         return db.query(query, values)
     },
-    delete(id) {
-        return db.query(`DELETE FROM chefs WHERE id=$1`, [id])
+    async delete(chef_id, file) {
+        try {
+            fs.unlinkSync(file.path)
+
+            await db.query(`DELETE FROM files WHERE id = $1`, [file.id])
+    
+            return db.query(`DELETE FROM chefs WHERE id=$1`, [chef_id])
+
+        } catch(err) {
+            console.error(err)
+        }
     },
-    file(id) {
-        return db.query(`
-            SELECT * FROM files WHERE id = $1`, [id])
+    file(filters) {
+        let query = 'SELECT * FROM files'
+
+        Object.keys(filters).map(key => {
+            query = `${query}
+            ${key}`
+
+            Object.keys(filters[key]).map(field => {
+                query = `${query} ${field} = '${filters[key][field]}'`
+            })
+        })
+
+        return db.query(query)
     }
 }
