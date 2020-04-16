@@ -1,4 +1,4 @@
-# Foodfy
+<h1 align="center">Foodfy</h1>
 
 <p align="center">Using html, css and javascript to build a complete website for recipe company named Foodfy.</p>
 
@@ -6,42 +6,25 @@
   <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/mockup.png" />
 </div>
 
-## Recipe Page
+## :computer: Built With
+- [Node.js](https://nodejs.org/en/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Nunjucks](https://mozilla.github.io/nunjucks/)
 
-By clicking on a recipe the user will now be redirected to a new page containing all the recipe information such as ingredients, preparation mode and additional information.
+## :arrow_forward: Getting Started
+You need the following tools installed in order to run this project: [Git](https://git-scm.com/), [Node.js](https://nodejs.org/en/), [PostgreSQL](https://www.postgresql.org/) and [Postbird](https://www.electronjs.org/apps/postbird).
 
-<div align="center">
-  <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/mockup-detalhe-receita.png" />
-</div>
+1. Clone this repository by running: <br> `git clone https://github.com/caiquegiovannini/foodfy.git`;
+2. Enter the folder running through the terminal: <br> `cd foodfy`;
+3. Run `npm install` to install the project dependencies;
+4. Set up database and mailer access with your credentials at <br> `src/config/db.js` <br> and <br> `src/lib/mailer.js`;
+5. Copy all the content found at `database.sql` file and run as a query at postbird to create the database himself;
+6. Populate database with users, chefs and recipes running: <br> `node seed.js`;
+7. Run `npm start` to start the development server.
 
-## Recipe search
+## :key: Administrative Area
+To get into the administrative area, access `http://localhost:3000/admin`.
+You will need to copy a user e-mail from the table 'users' and enter the default password '123'.
 
-To facilitate the search for a registered recipe, the person who accesses the website can filter by name of the recipe.
-
-<div align="center">
-   <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/launchbase/mockup-busca.png" />
-</div>
-
-## Chefs listing
-
-Page on the site where Foodfy chefs are shown, providing a count of all recipes for each chef.
-
-<div align="center">
-   <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/launchbase/mockup-chefs.png" />
-</div>
-
-## [Admin] Recipes
-
-Administrative area where you can add, edit and delete recipes.
-
-<div align="center">
-  <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/launchbase/mockup-desafio-04.png" />
-</div>
-
-## [Admin] Chefs
-
-Administrative page that will be able to do the registration, listing, updating and removal of chefs.
-
-<div align="center">
-   <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/launchbase/mockup-cadastro-chefs.png" />
-</div>
+## :memo: License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
