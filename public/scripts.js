@@ -1,29 +1,29 @@
-const recipes = document.querySelectorAll('.recipe')
-const showHideButton = document.querySelectorAll('.show-hide')
-const content = document.querySelectorAll('.step-content')
 const menuItens = document.querySelectorAll('.menu a')
 const searchField = document.querySelector('.page-header form')
 const adminMenuItens = document.querySelectorAll('.menu-admin a')
 const currentPage = location.pathname
 
-for (let recipe of recipes) {
-    recipe.addEventListener('click', () => {
-        const recipeId = recipe.id
-        
+const GoTo = {
+    recipe(e, recipeId) {
+        console.log(e)
         window.location.href = `/recipes/${recipeId}`
-    })
+    }
 }
 
 // Botão mostrar e esconder
-for (let i = 0; i < showHideButton.length; i++) {
-    showHideButton[i].addEventListener('click', () => {
-        if (showHideButton[i].textContent == 'ESCONDER') {
-            showHideButton[i].textContent = 'MOSTRAR'
+const ShowHide = {
+    showHide(e) {
+        const button = e.target
+
+        if (button.innerHTML == 'ESCONDER') {
+            button.innerHTML = 'MOSTRAR'
         } else {
-            showHideButton[i].textContent = 'ESCONDER'
+            button.innerHTML = 'ESCONDER'
         }
-        content[i].classList.toggle('hide')
-    })
+
+        button.nextElementSibling.classList.toggle('hide')
+    }
+
 }
 
 // Destaca o local no menu
@@ -305,6 +305,22 @@ const Validate = {
         return {
             error,
             value
+        }
+    },
+    allFields(e) {
+        const items = document.querySelectorAll('.item input, .item select')
+
+        for (item of items) {
+            if(item.value == '') {
+                const message = document.createElement('div')
+                message.classList.add('messages')
+                message.classList.add('error')
+                message.style.position = 'fixed'
+                message.innerHTML = 'Os campos com * são obrigatórios!'
+                document.querySelector('body').append(message)
+
+                e.preventDefault()
+            }
         }
     }
 }

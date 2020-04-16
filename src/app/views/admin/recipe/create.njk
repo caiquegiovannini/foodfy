@@ -4,7 +4,7 @@
 <form action="/admin/recipes/create" method="post" enctype="multipart/form-data">
 
     <h2>Criando receita</h2>
-    <button class="button" type="submit">Salvar receita</button>
+    <button class="button" type="submit" onclick="Validate.allFields(event)">Salvar receita</button>
 
     {% include 'admin/recipe/fields.njk' %}
 

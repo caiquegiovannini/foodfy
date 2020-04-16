@@ -1,3 +1,6 @@
+DROP DATABASE IF EXISTS foodfydb;
+CREATE DATABASE foodfydb;
+
 CREATE TABLE "recipes" (
 	"id" SERIAL PRIMARY KEY,
     "chef_id" int NOT NULL,
@@ -94,3 +97,17 @@ ADD CONSTRAINT recipe_files_recipe_id_fkey
 FOREIGN KEY ("recipe_id")
 REFERENCES "recipes" ("id")
 ON DELETE CASCADE;
+
+-- to run seeds
+DELETE FROM users;
+DELETE FROM chefs;
+DELETE FROM files;
+DELETE FROM recipes;
+DELETE FROM recipe_files;
+
+-- restart sequence auto_increment from tables ids
+ALTER SEQUENCE users_id_seq RESTART WITH 1;
+ALTER SEQUENCE chefs_id_seq RESTART WITH 1;
+ALTER SEQUENCE files_id_seq RESTART WITH 1;
+ALTER SEQUENCE recipes_id_seq RESTART WITH 1;
+ALTER SEQUENCE recipe_files_id_seq RESTART WITH 1;

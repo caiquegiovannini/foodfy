@@ -9,9 +9,9 @@
 
 <div class="item">
     <div class="field-title">Avatar *</div>
-    {% if avatar %}
-        <div class="avatar-path" id={{avatar.id}}>
-            <span>{{avatar.src}}</span>
+    {% if chef.path %}
+        <div class="avatar-path" id={{chef.file_id}}>
+            <span>{{chef.path}}</span>
         </div>
     {% endif %}
 

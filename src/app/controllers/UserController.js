@@ -1,8 +1,17 @@
-const User = require('../models/User')
-
 const { hash } = require('bcryptjs')
 const crypto = require('crypto')
 const mailer = require('../../lib/mailer')
+const { unlinkSync } = require('fs')
+
+const User = require('../models/User')
+const Recipe = require('../models/Recipe')
+const File = require('../models/File')
+
+const emailMessage = (password) => `
+    <h1>FOODFY</h1>
+    <h2>Senha de acesso</h2>
+    <p>Sua senha de usuário no site Foodfy é: <span style="font-weight: bold">${password}</span></p>
+`
 
 module.exports = {
     async list(req, res) {
@@ -44,11 +53,7 @@ module.exports = {
                 to: req.body.email,
                 from: 'no-reply@foodfy.com',
                 subject: 'Senha de acesso',
-                html: `
-                    <h1>FOODFY</h1>
-                    <h2>Senha de acesso</h2>
-                    <p>Sua senha de usuário no site Foodfy é: <span style="font-weight: bold">${password}</span></p>
-                `
+                html: emailMessage(password)
             })
     
             return res.render('admin/user/edit', {
@@ -82,7 +87,7 @@ module.exports = {
             })
 
             user = {
-                ...user,
+                ...req.body,
                 is_admin
             }
 
@@ -100,10 +105,29 @@ module.exports = {
     },
     async delete(req, res) {
         try {
+            let recipes = await Recipe.findAll({ where: {user_id: req.body.id} })
+
+            const recipeFilesPromise = recipes.map(recipe =>
+                Recipe.files(recipe.id)
+            )
+
+            let recipeFiles = await Promise.all(recipeFilesPromise)
+
             await User.delete(req.body.id)
 
-            const results = await User.all()
-            const users = results.rows
+            recipeFiles.map(files => {
+                files.map(file => {
+                    try {
+                        File.delete(file.id)
+
+                        unlinkSync(file.path)
+                    } catch (error) {
+                        console.error(error)
+                    }
+                })
+            })
+
+            const users = await User.findAll()
 
             return res.render('admin/user/index', {
                 users,
@@ -112,8 +136,7 @@ module.exports = {
 
         } catch(err) {
             console.error(err)
-            const results = await User.all()
-            const users = results.rows
+            const users = await User.findAll()
             return res.render('admin/user/index', {
                 users,
                 error: "Erro ao tentar deletar um usuário!"

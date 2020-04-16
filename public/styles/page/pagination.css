@@ -1,0 +1,17 @@
+.container .pagination {
+    margin: 50px 0;
+    display: flex;
+    align-self: end;
+    justify-content: center;
+}
+
+.pagination a,
+.pagination span {
+    color: var(--button-color);
+    margin-right: 16px;
+}
+
+.pagination a:hover {
+    filter: brightness(0.3);
+    border-bottom: 1px solid var(--button-color);
+}

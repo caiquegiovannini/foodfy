@@ -1,22 +1,11 @@
-const Chef = require('../models/Chef')
+const LoadChefService = require('../services/LoadChefService')
+const LoadRecipeService = require('../services/LoadRecipeService')
 
 async function getFieldsValues(req) {
     const id = req.params.id || req.body.id
-    let results = await Chef.find(id)
-    const chef = results.rows[0]
+    let chef = await LoadChefService.load('chef', { where: {id} })
 
-    results = await Chef.file({ where: {id: chef.file_id} })
-    let avatar = results.rows[0]
-
-    avatar = {
-        ...avatar,
-        src: `${req.protocol}://${req.headers.host}${avatar.path.replace("public", "").replace("\\images\\", "/images/")}`
-    }
-
-    return {
-        chef,
-        avatar
-    }
+    return chef
 }
 
 async function checkAllFields(req) {
@@ -47,14 +36,9 @@ async function post(req, res, next) {
 }
 
 async function chefDontExists(req, res, next) {
-    const { chef } = await getFieldsValues(req)
+    const chef = await getFieldsValues(req)
 
-    results = await Chef.all()
-    let chefs = results.rows
-    chefs = chefs.map(chef => ({
-            ...chef,
-            path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`
-        }))
+    const chefs = await LoadChefService.load('chefs')
     
     if (!chef) return res.render('admin/chef/index', {
         chefs,
@@ -67,41 +51,37 @@ async function chefDontExists(req, res, next) {
 }
 
 async function update(req, res, next) {
-    let fillAllFields = await checkAllFields(req)
+    try {
+        let fillAllFields = await checkAllFields(req)
 
-    if (fillAllFields) {
-        const { avatar } = await getFieldsValues(req)
-        console.log(avatar)
-        fillAllFields = {
-            ...fillAllFields,
-            avatar
+        if (fillAllFields) {
+            fillAllFields = {
+                ...fillAllFields
+            }
+
+            return res.render('admin/chef/edit', fillAllFields)
         }
 
-        return res.render('admin/chef/edit', fillAllFields)
+        next()
+    } catch (error) {
+        console.error(error)
     }
-
-    next()
 }
 
 async function remove(req, res, next) {
-    let results = await Chef.findRecipesByChef(req.body.id)
-    const recipes = results.rows
+    const recipes = await LoadRecipeService.load('recipes', { where: {chef_id: req.body.id}})
+    const chef = await getFieldsValues(req)
 
-    const { chef, avatar } = await getFieldsValues(req)
     
     if (recipes.length != 0) {
 
         return res.render('admin/chef/edit', { 
-            chef, 
-            avatar,
+            chef,
             error: 'Chefs com receitas cadastradas não podem ser deletados!'
         })
     }
 
-    req.chef = {
-        chef,
-        avatar
-    }
+    req.chef = chef
 
     next()
 }

@@ -1,0 +1,30 @@
+{% macro recipes(name, filter, classes, recipes) %}
+
+    
+    <section>
+
+        {% if name and filter %}
+            <h2>{{name}} "{{filter}}"</h2>
+        {% elif name %}
+            <h2>{{name}}</h2>
+        {% endif %}
+
+        <div class="recipes {{classes}}">
+            
+            {% for recipe in recipes %}
+            <div class="recipe" id="{{recipe.id}}" onclick="GoTo.recipe(event, {{recipe.id}})">
+                <div class="recipe-image">
+                    <img src="{{recipe.img}}" alt="{{recipe.title}}">
+                </div>
+                <div class="recipe-info">
+                    <p class="recipe-name">{{recipe.title}}</p>
+                    <p class="recipe-author">por {{recipe.chef_name}}</p>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>  
+
+    </section>
+
+{% endmacro %}

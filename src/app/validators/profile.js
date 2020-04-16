@@ -1,5 +1,6 @@
-const User = require('../models/User')
 const { compare } = require('bcryptjs')
+
+const User = require('../models/User')
 
 function checkAllFields(body) {
     const keys = Object.keys(body)
@@ -31,8 +32,8 @@ async function update(req, res, next) {
         error: 'Senha incorreta.'
     })
 
-    const users = await User.all()
-    const blocked = users.rows.find(user => (user.id != id && user.email == email))
+    const users = await User.findAll()
+    const blocked = users.find(user => (user.id != id && user.email == email))
 
     if (blocked) {
         return res.render('admin/profile/index', {

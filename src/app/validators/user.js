@@ -42,8 +42,7 @@ async function edit(req, res, next) {
     })
 
     if (!user) {
-        const results = await User.all()
-        const users = results.rows
+        const users = await User.findAll()
 
         return res.render('admin/user/index', {
             users,
@@ -65,8 +64,8 @@ async function update(req, res, next) {
     let { id, email } = req.body
 
     let user = await User.findOne({ where: {id} })
-    const users = await User.all()
-    const blocked = users.rows.find(user => (user.id != id && user.email == email))
+    const users = await User.findAll()
+    const blocked = users.find(user => (user.id != id && user.email == email))
 
     if (blocked) {
         return res.render('admin/user/edit', {

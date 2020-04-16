@@ -1,6 +1,8 @@
 const User = require('../models/User')
 const Recipe = require('../models/Recipe')
 
+const LoadRecipeService = require('../services/LoadRecipeService')
+
 function onlyUsers(req, res, next) {
     if (!req.session.userId)
         return res.redirect('/admin/users/login')
@@ -23,15 +25,7 @@ async function onlyAdmin(req, res, next) {
 async function onlyWhoCreatedOrAdmin(req, res, next) {
     const user = await User.findOne({ where: {id: req.session.userId} })
 
-    let results = await Recipe.find(req.params.id)
-    const recipe = results.rows[0]
-
-    results = await Recipe.files(recipe.id)
-    let files = results.rows
-    files = files.map(file => ({
-        ...file,
-        src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
-    }))
+    const recipe = await LoadRecipeService.load('recipe', { where: {id: req.params.id}})
 
     if (!user.is_admin && user.id != recipe.user_id)
         return res.render('admin/recipe/show', {
@@ -44,8 +38,7 @@ async function onlyWhoCreatedOrAdmin(req, res, next) {
 }
 
 async function canNotDeleteOwnAccount(req, res, next) {
-    const results = await User.all()
-    const users = results.rows
+    const users = await User.findAll()
 
     if (req.session.userId == req.body.id) return res.render('admin/user/index', {
         users,

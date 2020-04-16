@@ -1,22 +1,12 @@
 const db = require('../../config/db')
-const fs = require('fs')
 
 const Base = require('./Base')
 
-module.exports = {
-    all() {
-        return db.query(`
-            SELECT recipes.*, name AS chef_name
-            FROM recipes 
-            LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
-            ORDER BY created_at DESC`
-        )
-    },
-    chefSelectOptions() {
+Base.init({ table: 'recipes' })
 
-        return db.query(`SELECT name, id FROM chefs`)
-    },
-    create(data) {
+module.exports = {
+    ...Base,
+    async create(fields) {
         const query = `
         INSERT INTO recipes (
             chef_id,
@@ -30,32 +20,18 @@ module.exports = {
         `
 
         const values = [
-            data.chef,
-            data.title,
-            data.ingredients,
-            data.preparation,
-            data.information,
-            data.user_id
+            fields.chef_id,
+            fields.title,
+            fields.ingredients,
+            fields.preparation,
+            fields.information,
+            fields.user_id
         ]
 
-        return db.query(query, values)
+        const results = await db.query(query, values)
+        return results.rows[0].id
     },
-    find(id) {
-        return db.query(`
-            SELECT recipes.*, name AS chef_name
-            FROM recipes 
-            LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
-            WHERE recipes.id=$1`, [id])
-    },
-    findBy(filter) {
-        return db.query(`
-            SELECT recipes.*, name AS chef_name
-            FROM recipes 
-            LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
-            WHERE recipes.title ILIKE '%${filter}%'
-            ORDER BY updated_at DESC`)
-    },
-    update(data) {
+    update(fields) {
         const query = `UPDATE recipes SET
             chef_id=($1),
             title=($2),
@@ -65,41 +41,17 @@ module.exports = {
         WHERE id = $6
         `
         const values = [
-            data.chef,
-            data.title,
-            data.ingredients,
-            data.preparation,
-            data.information,
-            data.id
+            fields.chef_id,
+            fields.title,
+            fields.ingredients,
+            fields.preparation,
+            fields.information,
+            fields.id
         ]
 
         return db.query(query, values)
     },
-    async delete(id) {
-        const results = await db.query(`
-            SELECT files.* FROM files
-            LEFT JOIN recipe_files ON (recipe_files.file_id = files.id)
-            LEFT JOIN recipes ON (recipes.id = recipe_files.recipe_id)
-            WHERE recipe_files.file_id = files.id
-            AND recipe_files.recipe_id = $1
-        `, [id])
-        const files = results.rows
-
-        
-        const deleteFilesPromise = files.map(async file => {
-            fs.unlinkSync(file.path)
-
-            await db.query(`DELETE FROM recipe_files WHERE file_id = $1`, [file.id])
-    
-            await db.query(`DELETE FROM files WHERE id = $1`, [file.id])
-        })
-
-        await Promise.all(deleteFilesPromise)
-
-
-        return db.query(`DELETE FROM recipes WHERE id = $1`, [id])
-    },
-    paginate(params) {
+    async paginate(params) {
         const { filter, limit, offset } = params
 
         let query = '',
@@ -120,23 +72,25 @@ module.exports = {
         }
 
         query = `
-        SELECT recipes.*, ${totalQuery}, name AS chef_name 
+        SELECT *, ${totalQuery}
         FROM recipes
-        LEFT JOIN chefs ON (recipes.chef_id = chefs.id)
         ${filterQuery}
         ORDER BY created_at DESC
         LIMIT $1 OFFSET $2
         `
 
-        return db.query(query, [limit, offset])
+        const results = await db.query(query, [limit, offset])
+        return results.rows
     },
-    files(id) {
-        return db.query(`
+    async files(id) {
+        const results = await db.query(`
             SELECT files.* FROM files
             LEFT JOIN recipe_files ON (recipe_files.file_id = files.id)
             LEFT JOIN recipes ON (recipes.id = recipe_files.recipe_id)
             WHERE recipe_files.file_id = files.id
             AND recipe_files.recipe_id = $1
         `, [id])
+
+        return results.rows
     }
 }

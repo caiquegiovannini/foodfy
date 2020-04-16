@@ -1,0 +1,36 @@
+.admin-header {
+    background-color: #111111;
+    height: 80px;
+    margin-bottom: 50px;
+    padding-left: 215px;
+    display: flex;
+    align-items: center;
+}
+
+.menu-admin {
+    width: 100%;
+    margin-left: 50px;
+}
+
+.menu-admin a,
+.admin-header a,
+.admin-header .exit {
+    font-size: 15px;
+    color: #999999;
+    font-weight: bold;
+    padding: 15px;
+    text-transform: uppercase;
+}
+
+.admin-header .exit {
+    font-family: 'Roboto', sans-serif;
+    background: none;
+    color: #ffffff;
+    margin-right: 50px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.menu-admin a.active {
+    color: #ffffff;
+}

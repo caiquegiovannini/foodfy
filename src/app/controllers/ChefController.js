@@ -1,16 +1,15 @@
+const { unlinkSync } = require('fs')
+
 const Chef = require('../models/Chef')
 const File = require('../models/File')
-const Recipe = require('../models/Recipe')
+
+const LoadChefService = require('../services/LoadChefService')
+const LoadRecipeService = require('../services/LoadRecipeService')
 
 module.exports = {
     async index(req, res) {
         try {
-            const results = await Chef.all()
-            let chefs = results.rows
-            chefs = chefs.map(chef => ({
-                    ...chef,
-                    path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`
-                }))
+            const chefs = await LoadChefService.load('chefs')
     
             return res.render('admin/chef/index', { chefs })
 
@@ -24,11 +23,12 @@ module.exports = {
     },
     async post(req, res) {
         try {
-            let results = await File.create({ ...req.file })
-            const fileId = results.rows[0].id
+            const { filename, path } = req.file
+            const { name } = req.body
+
+            const fileId = await File.create({ name: filename, path })
     
-            results = await Chef.create(req.body, fileId)
-            const chefId = results.rows[0].id
+            const chefId = await Chef.create({ name, file_id: fileId })
     
             return res.redirect(`/admin/chefs/${chefId}`)
 
@@ -40,26 +40,10 @@ module.exports = {
         try {
             let { chef } = req
 
-            const resultsRecipes = await Chef.findRecipesByChef(req.params.id)
-            let recipes = resultsRecipes.rows
-            
-            const filesPromise = recipes.map(async recipe => {
-                results = await Recipe.files(recipe.id)
-                let file = results.rows[0]
-                file = {
-                    ...file,
-                    src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
-                }
-                return recipe = {
-                    ...recipe,
-                    file
-                }
-            })
-            recipes = await Promise.all(filesPromise)
+            let recipes = await LoadRecipeService.load('recipes', { where: {chef_id: req.params.id} })
     
             chef = {
                 ...chef,
-                path: `${req.protocol}://${req.headers.host}${chef.path.replace("public", "").replace("\\images\\", "/images/")}`,
                 recipes
             }
     
@@ -73,14 +57,7 @@ module.exports = {
         try {
             let { chef } = req
     
-            results = await Chef.file({ where: {id: chef.file_id} })
-            let file = results.rows[0]
-            file = {
-                ...file,
-                src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "").replace("\\images\\", "/images/")}`
-            }
-    
-            return res.render('admin/chef/edit', { chef, avatar: file })
+            return res.render('admin/chef/edit', { chef })
 
         } catch(err) {
             console.error(err)
@@ -97,25 +74,29 @@ module.exports = {
                     removedFiles.splice(lastIndex, 1)
     
                 } else {
-                    let results = await Chef.find(req.body.id)
-                    const chef = results.rows[0]
+                    const chef = await LoadChefService.load('chef', { where: {id: req.body.id} })
         
-                    results = await Chef.file({ where: {id: chef.file_id}})
-                    const oldAvatar = results.rows[0]
+                    const oldAvatar = await Chef.file({ where: {id: chef.file_id}})
                     removedFiles = [oldAvatar.id]
                 }
     
                 // add new avatar
-                let results = await File.create({ ...req.file })
-                const newAvatarId = results.rows[0].id
-                await Chef.update(req.body, newAvatarId)
+                const { filename, path } = req.file
+                const newAvatarId = await File.create({ name: filename, path })
+
+                await Chef.update(req.body.id, {
+                    name: req.body.name,
+                    file_id: newAvatarId       
+                })
     
                 // remove old avatar
                 const removedFilesPromise = removedFiles.map(id => File.delete(id))
                 await Promise.all(removedFilesPromise)
     
             } else {
-                await Chef.update(req.body)
+                await Chef.update(req.body.id, {
+                    name: req.body.name     
+                })
     
             }
             
@@ -127,9 +108,12 @@ module.exports = {
     },
     async delete(req, res) {
         try {
-            const { chef, avatar } = req.chef
+            const chef  = req.chef
 
-            await Chef.delete(chef.id, avatar)
+            unlinkSync(`public/${chef.path}`)
+            File.delete(chef.file_id)
+
+            await Chef.delete(chef.id)
 
             return res.redirect('/admin/chefs')
 

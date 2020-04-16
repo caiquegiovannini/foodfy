@@ -1,63 +1,22 @@
-const Recipe = require('../models/Recipe')
-
-async function getFieldsValues(req) {
-    results = await Recipe.chefSelectOptions()
-    const chefOptions = results.rows
-
-    //get images
-    results = await Recipe.files(req.body.id)
-    let files = results.rows
-    files = files.map(file => ({
-        ...file,
-        src: `${req.protocol}://${req.headers.host}${file.path.replace("public", "")}`
-    }))
-
-    const values = {
-        chefOptions,
-        files
-    }
-
-    return values
-}
-
-async function checkAllFields(req) {
-    const keys = Object.keys(req.body)
-
-    const { chefOptions, files } = await getFieldsValues(req)
-
-    for (key of keys) {
-        if (key != 'information' && key != 'removed_files' && req.body[key] == "") {
-            return {
-                recipe: req.body,
-                chefOptions,
-                files,
-                error: 'Os campos com * são obrigatórios!'
-            }
-        }
-    }
-}
+const LoadRecipeService = require('../services/LoadRecipeService')
 
 async function post(req, res, next) {
-    const fillAllFields = await checkAllFields(req)
-    if (fillAllFields) {
-        return res.render('admin/recipe/create', fillAllFields)
+    const keys = Object.keys(req.body)
+
+    for (key of keys) {
+        if (key != 'information' && req.body[key] == "") {
+            return res.send('Por favor, volte e preencha todos os campos.')
+        }
     }
 
-    const { chefOptions } = await getFieldsValues(req)
-
-    if (req.files.length == 0)
-        return res.render('admin/recipe/create', {
-            recipe: req.body,
-            chefOptions,
-            error: 'Envie pelo menos 1 foto'
-        })
+    if (!req.files || req.files.length == 0)
+        return res.send('Por favor, envie pelo menos 1 imagem.')
 
     next()
 }
 
 async function show(req, res, next) {
-    let results = await Recipe.find(req.params.id)
-    const recipe = results.rows[0]
+    const recipe = await LoadRecipeService.load('recipe', { where: {id: req.params.id}})
     
     if (!recipe) return res.send('Receita não encontrada!')
 
@@ -67,8 +26,7 @@ async function show(req, res, next) {
 }
 
 async function edit(req, res, next) {
-    let results = await Recipe.find(req.params.id)
-    const recipe = results.rows[0]
+    const recipe = await LoadRecipeService.load('recipe', { where: {id: req.params.id}})
 
     if (!recipe) return res.send('Receita não encontrada!')
 
@@ -79,21 +37,14 @@ async function edit(req, res, next) {
 
 async function update(req, res, next) {
     try {
-        const fillAllFields = await checkAllFields(req)
-        if (fillAllFields) {
-            return res.render('admin/recipe/edit', fillAllFields)
-        }
-    
-        const { chefOptions, files } = await getFieldsValues(req)
+        const keys = Object.keys(req.body)
 
-        if (req.files.length == 0 && files.length == 0) {
-            return res.render('admin/recipe/edit', {
-                recipe: req.body,
-                chefOptions,
-                error: 'Envie pelo menos 1 foto'
-            })
+        for (key of keys) {
+            if (key != 'information' && key != 'removed_files' && req.body[key] == "") {
+                return res.send('Por favor, volte e preencha todos os campos.')
+            }
         }
-    
+
         next()
         
     } catch(err) {

@@ -8,15 +8,15 @@
 
     <section class="head-recipe">
         <div class="full-recipe_image">
-            <img src="{{files[0].src}}" alt="{{files[0].name}}">
+            <img src="{{recipe.img}}" alt="{{recipe.files[0].name}}">
         </div>
 
         <div class="full-recipe_highlights">
-        {% for file in files %}
+        {% for file in recipe.files %}
             <img 
                 src="{{file.src}}" 
                 alt="{{file.name}}"
-                {% if files.indexOf(file) == 0 %}
+                {% if recipe.files.indexOf(file) == 0 %}
                     class="selected"
                 {%endif%}
                 onclick="PhotoSelected.highlightPhoto(event)"

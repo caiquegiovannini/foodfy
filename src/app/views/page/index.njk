@@ -1,4 +1,5 @@
 {% extends 'layout.njk' %}
+{% import "parts/section-recipes.njk" as section %}
 
 {% block content %}
 
@@ -7,25 +8,11 @@
             <h1>As melhores receitas</h1>
             <p>Aprenda a construir os melhores pratos com receitas criadas por profissionais do mundo inteiro.</p>
         </div>
-        <img src="assets/chef.png" alt="Chef">
+        <div class="image-container">
+            <img src="assets/chef.png" alt="Chef">
+        </div>
     </section>
-    
-    <section class="most-viewed">
-        <h2>Mais acessadas</h2>
-        <div class="recipes">
-            
-            {% for recipe in mostViewed %}
-            <div class="recipe" id="{{recipe.id}}">
-                <div class="recipe-image">
-                    <img src="{{recipe.file.src}}" alt="{{recipe.title}}">
-                </div>
-                <div class="recipe-info">
-                    <p class="recipe-name">{{recipe.title}}</p>
-                    <p class="recipe-author">por {{recipe.chef_name}}</p>
-                </div>
-            </div>
-            {% endfor %}
 
-        </div>    
-    </section>
+    {{section.recipes('Mais acessadas', '', 'most-viewed', recipes)}}
+    
 {% endblock %}

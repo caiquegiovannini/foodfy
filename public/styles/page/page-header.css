@@ -1,0 +1,41 @@
+.page-header {
+    padding-top: 32px;
+    display: grid;
+    grid-template-columns: 91px 1fr 1fr;
+    margin-bottom: 30px;
+    gap: 122px;
+    align-items: center;
+}
+
+.menu a {
+    font-size: 16px;
+    color: #111111;
+    line-height: 26px;
+    padding: 15px;
+}
+
+.menu a.active {
+    font-weight: bold;
+}
+
+.page-header form {
+    display: grid;
+    grid-template-columns: 1fr 95px;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-header form.hide {
+    visibility: hidden;
+}
+
+.page-header form input {
+    margin: 0;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.page-header form button {
+    padding: 10px 20px;
+}

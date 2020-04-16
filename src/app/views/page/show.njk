@@ -3,15 +3,15 @@
 {% block content %}
     <section class="head-recipe">
         <div class="full-recipe_image">
-            <img src="{{files[0].src}}" alt="{{recipe.title}}">
+            <img src="{{recipe.img}}" alt="{{recipe.title}}">
         </div>
 
         <div class="full-recipe_highlights">
-        {% for file in files %}
+        {% for file in recipe.files %}
             <img 
                 src="{{file.src}}" 
                 alt="{{file.name}}"
-                {% if files.indexOf(file) == 0 %}
+                {% if recipe.files.indexOf(file) == 0 %}
                     class="selected"
                 {%endif%}
                 onclick="PhotoSelected.highlightPhoto(event)"
@@ -29,29 +29,29 @@
 
         <div class="ingredients full-recipe_content">
             <h2>Ingredientes</h2>
-            <span class="show-hide">ESCONDER</span>
+            <span class="show-hide" onclick="ShowHide.showHide(event)">ESCONDER</span>
             <ul class='recipe-list'>
-            <div class="step-content">
-                {% for ingredient in recipe.ingredients %}
-                    <li>{{ingredient}};</li>
-                {% endfor %}
-            </div>
+                <div class="step-content">
+                    {% for ingredient in recipe.ingredients %}
+                        <li>{{ingredient}};</li>
+                    {% endfor %}
+                </div>
             </ul>
         </div>
         <div class="preparation full-recipe_content">
             <h2>Modo de preparo</h2>
-            <span class="show-hide">ESCONDER</span>
+            <span class="show-hide" onclick="ShowHide.showHide(event)">ESCONDER</span>
             <ul class='recipe-list'>
-            <div class="step-content">
-                {% for step in recipe.preparation %}
-                    <li>{{step}}</li>
-                {% endfor %}
-            </div>
+                <div class="step-content">
+                    {% for step in recipe.preparation %}
+                        <li>{{step}}</li>
+                    {% endfor %}
+                </div>
             </ul>
         </div>
         <div class="information full-recipe_content">
             <h2>Informações adicionais</h2>
-            <span class="show-hide">ESCONDER</span>
+            <span class="show-hide" onclick="ShowHide.showHide(event)">ESCONDER</span>
             <div class="step-content">
                 <p>{{recipe.information | striptags(true) | escape | nl2br}}</p>
             </div>
